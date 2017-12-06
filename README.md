@@ -1,5 +1,4 @@
-# Linux Server Configuration on EC2
-# Synopsis
+# Synopsis of Linux Server Configuration on EC2
 This project is a guide to build a safe WSGI application. Installation of a Linux distribution on a virtual machine and prepare it to host my web applications, to include installing updates, securing it from a number of attack vectors and installing/configuring web and database servers.
 
 IP address:13.59.78.168<br> 
@@ -23,7 +22,7 @@ Note: I configure the AWS S3 and set DNS to run Static Website and the detail of
  - Configure a web server running on port 80
  - How Database server has been configured to serve data (PostgreSQL).
  - How web server has been configured to serve my restaurant application as a WSGI app.
-4. What else
+
 
 # Configuration Process
 ## Get server
@@ -34,24 +33,51 @@ Note: I configure the AWS S3 and set DNS to run Static Website and the detail of
 ``` $ ssh -i "key.pem" ubuntu@ec2-13-59-78-168.us-east-2.compute.amazonaws.com```
 
 ## Update installed packages
-1. Update the package indexes:
+1. Update the package indexes:<br> 
 ```$ sudo apt-get update```
 
-2. Upgrade the installed packages:
+2. Upgrade the installed packages:<br> 
 ```$ sudo apt-get upgrade```
 
-3.Others Optional configuration:
-check details by: ```man apt-get```
-remove package no longer needed by: ```sudo apt-get auto remove```
-Install a new software finger to check info quickly: ```sudo apt-get install finger```
+3. Others Optional configuration:<br> 
+check details by: ```man apt-get```<br> 
+remove package no longer needed by: ```sudo apt-get auto remove```<br> 
+Install a new software finger to check info quickly: ```sudo apt-get install finger```<br> 
 
 ## Add user
-1. Add new user called grader
-```$ sudo adduser grader```
-2. Check the new user 
-```$ finger grader```
-3. Add user grader to sudo group
-```$ sudo usermod -aG sudo grader```
-4. Switch to and test sudo access on new user account
-```$ su - grader```
-```$ sudo cat /etc/passwd```
+1. Add new user called grader<br> 
+```$ sudo adduser grader```<br> 
+2. Check the new user <br> 
+```$ finger grader```<br> 
+3. Add user grader to sudo group<br> 
+```$ sudo usermod -aG sudo grader```<br> 
+4. Switch to and test sudo access on new user account<br> 
+```$ su - grader```<br> 
+```$ sudo cat /etc/passwd```<br> 
+
+## Set-up SSH keys for user grader
+1. Copy the public key<br> 
+```$ sudo mkdir /home/grader/.ssh```<br> 
+```$ sudo cp /home/ubuntu/.ssh/authorized_keys /home/grader/.ssh/```<br> 
+
+2. Set the permission
+```$ sudo chown grader:grader /home/grader/.ssh/authorized_keys```<br> 
+```$ sudo chmod 700 /home/grader/.ssh```
+```$ sudo chown grader:grader /home/grader/.ssh/authorized_keys```<br> 
+```$ sudo chmod 644 /home/grader/.ssh/authorized_keys```<br> 
+
+3. Login as the grader user using the command:
+```$ ssh -i "xuanqiKey.pem" grader@ec2-13-59-78-168.us-east-2.compute.amazonaws.com```<br> 
+
+## Forcing Key Based Authentication and disable root login
+1. Edit the authentication file
+```$ sudo nano /etc/ssh/sshd_config```<br> 
+a.From PermitRootLogin without-password to PermitRootLogin no.<br> 
+b.PasswordAuthentication no<br> 
+3. Restart for the changes to take effect<br> 
+
+## Change timezone to UTC
+1. Configure the time zone<br>
+```$ sudo timedatectl set-timezone UTC```<br>
+2. Check timezone<br>
+```$ timedatectl status```<br>
