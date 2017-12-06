@@ -117,7 +117,6 @@ b.PasswordAuthentication no<br>
 ```$ sudo apt-get install libapache2-mod-wsgi```<br>
 ```$ sudo a2enmod wsgi```<br>
 ```$ sudo service apache2 restart```<br>
-
 3. Other useful module for my project
 ```
 sudo apt-get install git
@@ -136,13 +135,10 @@ pip install Flask-SQLAlchemy
 cd /var/www
 sudo mkdir catalog
 ```
-
 2. Change owner of the newly created catalog folder<br>
 ```sudo chown -R grader:grader catalog```
-
 3. Clone the Catalog App to the virtual machine <br>
 ```git clone https://github.com/x467chen/Item-Catalog-for-Restaurant.git catalog```
-
 4.Create a catalog.wsgi file and add this inside:
 ```
 import sys
@@ -153,10 +149,8 @@ sys.path.insert(0, "/var/www/catalog/")
 from catalog import app as application
 application.secret_key = 'supersecretkey'
 ```
-
 5. Move to the inner catalog directory using <br>
 ```cd catalog```
-
 6. Rename project.py to __init__.py using:
 ```sudo mv project.py __init__.py```
 
@@ -179,7 +173,6 @@ GRANT ALL ON SCHEMA public TO catalog;
 exit
 ```
 4. Change create engine line in __init__.py and database_setup.py to: engine = create_engine('postgresql://catalog:password@localhost/catalog')
-
 5. Start new PostgreSQL
 ```python /var/www/catalog/catalog/database_setup.py```
 
@@ -206,8 +199,9 @@ exit
 ```
 
 ## Update OAuth client secrets file
-1. Google<br>
- Go to the app website add new "javascript_origins": http://ec2-13-59-78-168.us-east-2.compute.amazonaws.com
+1. GoogleOther useful modul
+ Go to the app website add new "javascript_origins":<br>
+ http://ec2-13-59-78-168.us-east-2.compute.amazonaws.com
  
 2. Facebook<br>
 Go to the app website add new the website URL: http://ec2-13-59-78-168.us-east-2.compute.amazonaws.com
