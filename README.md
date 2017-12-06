@@ -81,3 +81,31 @@ b.PasswordAuthentication no<br>
 ```$ sudo timedatectl set-timezone UTC```<br>
 2. Check timezone<br>
 ```$ timedatectl status```<br>
+
+## Configure the Uncomplicated Firewall (UFW)
+1. Change the SSH port from 22 to 2200(Notes: Also add a new custom port with port 2200 on AWS)<br>
+```$ sudo vim /etc/ssh/sshd_config ```<br>
+
+2. Reload SSH using and and login again
+```$ sudo service ssh restart  ```<br>
+```$ ssh -i "xuanqiKey.pem" grader@ec2-18-216-252-134.us-east-2.compute.amazonaws.com -p 2200 ```<br>
+
+3. By default, block all incoming connections on all ports:
+```$ sudo ufw default deny incoming ```<br>
+
+4. Allow outgoing connection on all ports:
+```$ sudo ufw default allow outgoing ```<br>
+
+5. Allow incoming connection
+```$ sudo ufw allow 2200/tcp ```<br>
+```$ sudo ufw allow www ```<br>
+```$ sudo ufw allow ntp ```<br>
+
+6. Check the rules
+```$ sudo ufw show added ```<br>
+
+7. Start the firewall
+```$ sudo ufw enable ```<br>
+ 
+8. Check the status of the firewall
+```$ sudo ufw status ```<br>
