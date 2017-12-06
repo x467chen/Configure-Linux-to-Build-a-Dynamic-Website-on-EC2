@@ -86,26 +86,138 @@ b.PasswordAuthentication no<br>
 1. Change the SSH port from 22 to 2200(Notes: Also add a new custom port with port 2200 on AWS)<br>
 ```$ sudo vim /etc/ssh/sshd_config ```<br>
 
-2. Reload SSH using and and login again<br>
+2. Reload SSH using and and login again
 ```$ sudo service ssh restart  ```<br>
 ```$ ssh -i "xuanqiKey.pem" grader@ec2-18-216-252-134.us-east-2.compute.amazonaws.com -p 2200 ```<br>
 
-3. By default, block all incoming connections on all ports:<br>
+3. By default, block all incoming connections on all ports:
 ```$ sudo ufw default deny incoming ```<br>
 
-4. Allow outgoing connection on all ports:<br>
+4. Allow outgoing connection on all ports:
 ```$ sudo ufw default allow outgoing ```<br>
 
-5. Allow incoming connection<br>
+5. Allow incoming connection
 ```$ sudo ufw allow 2200/tcp ```<br>
 ```$ sudo ufw allow www ```<br>
 ```$ sudo ufw allow ntp ```<br>
 
-6. Check the rules<br>
+6. Check the rules
 ```$ sudo ufw show added ```<br>
 
-7. Start the firewall<br>
+7. Start the firewall
 ```$ sudo ufw enable ```<br>
-
-8. Check the status of the firewall<br>
+ 
+8. Check the status of the firewall
 ```$ sudo ufw status ```<br>
+
+## Install Apache, Git, Flask, SQLAlchemyand etc.
+1.Install Apache 
+```$ sudo apt-get install apache2```<br>
+2.Install mod_wsgi
+```$ sudo apt-get install libapache2-mod-wsgi```<br>
+```$ sudo a2enmod wsgi```<br>
+```$ sudo service apache2 restart```<br>
+
+3. Other useful module for my project
+```
+sudo apt-get install git
+sudo apt-get install python-psycopg2 python-flask
+sudo apt-get install python-sqlalchemy python-pip
+sudo pip install flask-seasurf
+sudo pip install --upgrade oauth2client
+pip install httplib2
+pip install requests
+pip install Flask-SQLAlchemy
+```
+
+## Clone the repository and Configure Apache
+1. Create the application directory 
+```
+cd /var/www
+sudo mkdir catalog
+```
+
+2. Change owner of the newly created catalog folder<br>
+```sudo chown -R grader:grader catalog```
+
+3. Clone the Catalog App to the virtual machine <br>
+```git clone https://github.com/x467chen/Item-Catalog-for-Restaurant.git catalog```
+
+4.Create a catalog.wsgi file and add this inside:
+```
+import sys
+import logging
+logging.basicConfig(stream=sys.stderr)
+sys.path.insert(0, "/var/www/catalog/")
+
+from catalog import app as application
+application.secret_key = 'supersecretkey'
+```
+
+5. Move to the inner catalog directory using <br>
+```cd catalog```
+
+6. Rename project.py to __init__.py using:
+```sudo mv project.py __init__.py```
+
+## Install and configure PostgreSQL
+1.Install PostgreSQL 
+sudo apt-get install postgresql postgresql-contrib
+2. Check if no remote connections are allowed 
+sudo subl /etc/postgresql/9.5/main/pg_hba.conf 
+3. Configure
+```
+sudo su - postgres
+psql
+CREATE USER catalog WITH PASSWORD 'password';
+ALTER USER catalog CREATEDB;
+CREATE DATABASE catalog WITH OWNER catalog;
+\c catalog
+REVOKE ALL ON SCHEMA public FROM public;
+GRANT ALL ON SCHEMA public TO catalog;
+\q
+exit
+```
+4. Change create engine line in __init__.py and database_setup.py to: engine = create_engine('postgresql://catalog:password@localhost/catalog')
+
+5. Start new PostgreSQL
+```python /var/www/catalog/catalog/database_setup.py```
+
+## Update catalog.wsgi file
+```
+<VirtualHost *:80>
+    ServerName 13.59.78.168
+    ServerAlias ec2-13-59-78-168.us-east-2.compute.amazonaws.com
+    ServerAdmin admin@13.59.78.168
+    WSGIScriptAlias / /var/www/catalog/catalog.wsgi
+    <Directory /var/www/catalog/catalog/>
+        Order allow,deny
+        Allow from all
+    </Directory>
+    Alias /static /var/www/catalog/catalog/static
+    <Directory /var/www/catalog/catalog/static/>
+        Order allow,deny
+        Allow from all
+    </Directory>
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    LogLevel warn
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
+
+## Update OAuth client secrets file
+1. Google<br>
+ Go to the app website add new "javascript_origins": http://ec2-13-59-78-168.us-east-2.compute.amazonaws.com
+ 
+2. Facebook<br>
+Go to the app website add new the website URL: http://ec2-13-59-78-168.us-east-2.compute.amazonaws.com
+
+3. Update all path of json in __init__.py to absolutely path:<br>
+```/var/www/catalog/catalog/client_secrets.json```
+
+4. If there is any mistake make sure restart server or log the error:<br>
+```sudo cat /var/log/apache2/error.log```
+
+## Restart Apache and visit Website
+1. Restart Apache by ```sudo service apache2 restart```
+2. Visit site at http://ec2-13-59-78-168.us-east-2.compute.amazonaws.com
