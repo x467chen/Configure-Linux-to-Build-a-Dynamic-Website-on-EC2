@@ -208,3 +208,5 @@ Go to the app website add new the website URL: http://ec2-13-59-78-168.us-east-2
 ## Restart Apache and visit Website
 1. Restart Apache by ```sudo service apache2 restart```
 2. Visit site at http://ec2-13-59-78-168.us-east-2.compute.amazonaws.com
+## Reference
+http://docs.aws.amazon.com/zh_cn/AWSEC2/latest/UserGuide/EC2_GetStarted.html
